@@ -17,6 +17,13 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
+    public User(String username, String email, LocalDate createdAt, LocalDate updatedAt) {
+        this.username = username;
+        this.email = email;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public int getId() {
         return id;
     }

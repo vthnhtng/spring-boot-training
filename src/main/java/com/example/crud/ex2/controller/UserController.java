@@ -1,51 +1,51 @@
 package com.example.crud.ex2.controller;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.crud.ex2.api.UserRepository;
 import com.example.crud.ex2.dto.CreateUserRequest;
+import com.example.crud.ex2.dto.UpdateUserRequest;
+import com.example.crud.ex2.dto.UserResponse;
 import com.example.crud.ex2.model.User;
+import com.example.crud.ex2.service.UserService;
 
 @RestController
 public class UserController {
-    private UserRepository userRepository;
+    final UserService userService;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/users")
-    public ArrayList<User> getUsers() {
-        return userRepository.getList();
-    }
-
-    @PostMapping("/users")
-    public void postUsers(@RequestBody CreateUserRequest postPayload) {
-        userRepository.create(postPayload);
+    public List<User> getUsers() {
+        return userService.getAll();
     }
 
     @GetMapping("/users/{id}")
-    public User getUser(@PathVariable("id") int id) {
-        try {
-            return userRepository.getById(id);
-        } catch (Exception e) {
-            return null;
-        }
+    public UserResponse getUser(@PathVariable("id") int id) {
+        return userService.getById(id);
+    }
+
+    @PostMapping("/users")
+    public UserResponse postUsers(@RequestBody CreateUserRequest postPayload) {
+        return userService.create(postPayload);
+    }
+
+    @PatchMapping("/users")
+    public UserResponse patchUsers(@RequestBody UpdateUserRequest postPayload) {
+        return userService.update(postPayload);
     }
 
     @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable("id") int id) {
-        try {
-            userRepository.deleteById(id);
-        } catch (Exception e) {
-            
-        }
+    public UserResponse deleteUser(@PathVariable("id") int id) {
+        return userService.deleteById(id);
     }
 }
