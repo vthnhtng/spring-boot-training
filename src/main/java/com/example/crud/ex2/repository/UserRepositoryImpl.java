@@ -14,21 +14,25 @@ public class UserRepositoryImpl implements UserRepository {
     final List<User> users = new ArrayList<>();
 
     @Override
-    public void save(User user) {
-        for (User u : users) {
+    public User save(User user) {
+        for (int i = 0; i < users.size(); i++) {
+            User u = users.get(i);
             if (u.getId() == user.getId()) {
-                u.setId(user.getId());
                 u.setUsername(user.getUsername());
                 u.setEmail(user.getEmail());
-                u.setCreatedAt(user.getCreatedAt());
-                u.setCreatedAt(LocalDate.now());
+                u.setUpdatedAt(LocalDate.now());
 
-                return;
+                return u;
             }
         }
 
         user.setId(users.size() + 1);
+        user.setCreatedAt(LocalDate.now());
+        user.setUpdatedAt(LocalDate.now());
+
         users.add(user);
+
+        return users.getLast();
     }
 
     @Override
@@ -50,25 +54,21 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean deleteById(int id) {
-        for (int i = 0; i <  users.size(); i++) {
-            if (users.get(i).getId() == id) {
-                users.remove(i);
-                return true;
-            }
-        }
+    public User delete(User user) {
+        users.remove(user);
 
-        return false;
+        return user;
     }
 
     @Override
-    public boolean existsById(int id) {
-        for (User user : users) {
-            if (user.getId() == id) {
-                return true;
-            }
+    public Optional<User> deleteById(int id) {
+        Optional<User> user = findById(id);
+        if (user.isEmpty()) {
+            return Optional.empty();
         }
 
-        return false;
+        delete(user.get());
+
+        return user;
     }
 }

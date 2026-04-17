@@ -2,15 +2,12 @@ package com.example.crud.ex2.service;
 
 import java.util.List;
 
-import com.example.crud.ex2.dto.CreateUserRequest;
-import com.example.crud.ex2.dto.UpdateUserRequest;
-import com.example.crud.ex2.dto.UserResponse;
-import com.example.crud.ex2.model.User;
+import com.example.crud.ex2.dto.UserDto;
 
 public interface UserService {
-    public List<User> getAll();
-    public UserResponse create(CreateUserRequest request);
-    public UserResponse update(UpdateUserRequest request);
-    public UserResponse getById(int id);
-    public UserResponse deleteById(int id);
+    public List<UserDto> getAll();
+    public UserDto create(UserDto userDto);
+    public UserDto update(UserDto userDto);
+    public UserDto getById(int id);
+    public UserDto deleteById(int id);
 }

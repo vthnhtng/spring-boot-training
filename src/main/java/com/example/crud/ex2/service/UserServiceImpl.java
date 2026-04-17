@@ -1,105 +1,84 @@
 package com.example.crud.ex2.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.example.crud.ex2.dto.CreateUserRequest;
-import com.example.crud.ex2.dto.UpdateUserRequest;
-import com.example.crud.ex2.dto.UserResponse;
+import com.example.crud.ex2.dto.UserDto;
+import com.example.crud.ex2.exception.user.UserNotFoundException;
 import com.example.crud.ex2.model.User;
 import com.example.crud.ex2.repository.UserRepository;
 
+import org.modelmapper.ModelMapper;
+
 @Service
 public class UserServiceImpl implements UserService {
-    final UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(
+            UserRepository userRepository,
+            ModelMapper modelMapper) {
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public List<UserDto> getAll() {
+        List<User> users = userRepository.findAll();
+
+        return users
+            .stream()
+            .map(user -> modelMapper.map(user, UserDto.class))
+            .collect(Collectors.toList());
+
     }
 
     @Override
-    public UserResponse create(CreateUserRequest request) {
-        String username = request.getUsername();
-        String email = request.getEmail();
-        LocalDate createdAt = LocalDate.now();
-        LocalDate updatedAt = LocalDate.now();
+    public UserDto create(UserDto userDto) {
+        User user = modelMapper.map(userDto, User.class);
 
-        User newUser = new User(username, email, createdAt, updatedAt);
+        User savedUser = userRepository.save(user);
 
-        userRepository.save(newUser);
-
-        return new UserResponse(
-            true,
-            String.format("New user with email %s is Successfully created!", email),
-            newUser
-        );
+        return modelMapper.map(savedUser, UserDto.class);
     }
 
     @Override
-    public UserResponse update(UpdateUserRequest request) {
-        int id = request.getId();
+    public UserDto update(UserDto userDto) {
+        int id = userDto.getId();
+        if (id <= 0) {
+            throw new UserNotFoundException("Invalid request ID: " + String.valueOf(id));
+        }
 
         Optional<User> user = userRepository.findById(id);
-
-        Boolean success = true;
-        String message = "User successfully updated!";
         if (user.isEmpty()) {
-            success = false;
-            message = "Failed to update user!";
-
-            return new UserResponse(success, message, null);
+            throw new UserNotFoundException("Cannot find user with ID: " + String.valueOf(id));
         }
-        
-        User userObj = user.get();
-        userObj.setEmail(request.getEmail());
-        userObj.setUsername(request.getUsername());
-        userObj.setUpdatedAt(LocalDate.now());
 
-        userRepository.save(user.get());
+        User updatedUser = userRepository.save(modelMapper.map(userDto, User.class));
 
-        return new UserResponse(success, message, userObj);
+        return modelMapper.map(updatedUser, UserDto.class);
     }
 
     @Override
-    public UserResponse getById(int id) {
+    public UserDto getById(int id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
-            return new UserResponse(
-                false,
-                "Could not find user with ID: " + String.valueOf(id),
-                null
-            );
+            throw new UserNotFoundException("Cannot find user with ID: " + String.valueOf(id));
         }
 
-        return new UserResponse(
-            true,
-            "Successfully get user by ID: " + String.valueOf(id),
-            user.get()
-        );
+        return modelMapper.map(user.get(), UserDto.class);
     }
 
     @Override
-    public UserResponse deleteById(int id){
-        if (!userRepository.deleteById(id)) {
-            return new UserResponse(
-                false,
-                "Failed to delete user by ID: " + String.valueOf(id),
-                null
-            );
+    public UserDto deleteById(int id) {
+        Optional<User> deletedUser = userRepository.deleteById(id);
+        if (deletedUser.isEmpty()) {
+            throw new UserNotFoundException("Cannot find user with ID: " + String.valueOf(id));
         }
 
-        return new UserResponse(
-            true,
-            "Successfully delete user by ID: " + String.valueOf(id),
-            null
-        );
+        return modelMapper.map(deletedUser.get(), UserDto.class);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.crud.ex2.model;
+package com.example.crud.ex2.dto;
 
 import java.time.LocalDate;
 
@@ -11,8 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class User {
-    private int id;
+public class UserDto {
+    private Integer id;
     private String username;
     private String email;
     private LocalDate createdAt;
