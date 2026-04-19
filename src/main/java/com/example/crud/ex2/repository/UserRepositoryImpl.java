@@ -11,7 +11,8 @@ import com.example.crud.ex2.model.User;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
-    final List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
+    private int nextId = 1;
 
     @Override
     public User save(User user) {
@@ -26,12 +27,13 @@ public class UserRepositoryImpl implements UserRepository {
             }
         }
 
-        user.setId(users.size() + 1);
+        user.setId(nextId);
         user.setCreatedAt(LocalDate.now());
         user.setUpdatedAt(LocalDate.now());
 
         users.add(user);
 
+        nextId += 1;
         return users.getLast();
     }
 
@@ -50,7 +52,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return users;
+        return List.copyOf(users); // ignore return reference to real list
     }
 
     @Override

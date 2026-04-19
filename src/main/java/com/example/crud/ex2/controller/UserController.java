@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.crud.ex2.dto.UserDto;
 import com.example.crud.ex2.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 public class UserController {
     final UserService userService;
@@ -33,12 +35,12 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<UserDto> postUsers(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> postUsers(@Valid @RequestBody UserDto userDto) {
         return ResponseEntity.ok(userService.create(userDto));
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<UserDto> putUsers(@PathVariable int id, @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> putUsers(@Valid @PathVariable int id, @RequestBody UserDto userDto) {
         userDto.setId(id);
         return ResponseEntity.ok(userService.update(userDto));
     }

@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.example.crud.ex2.dto.UserDto;
+import com.example.crud.ex2.exception.user.BadRequestException;
 import com.example.crud.ex2.exception.user.UserNotFoundException;
 import com.example.crud.ex2.model.User;
 import com.example.crud.ex2.repository.UserRepository;
-
-import org.modelmapper.ModelMapper;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -38,6 +38,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
+        userDto.setId(null);
+
         User user = modelMapper.map(userDto, User.class);
 
         User savedUser = userRepository.save(user);
@@ -49,7 +51,7 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto userDto) {
         int id = userDto.getId();
         if (id <= 0) {
-            throw new UserNotFoundException("Invalid request ID: " + String.valueOf(id));
+            throw new BadRequestException("Invalid request ID: " + String.valueOf(id));
         }
 
         Optional<User> user = userRepository.findById(id);
