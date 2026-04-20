@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+    mysql-java-training:
+        container_name: mysql-java-training
+        image: mysql
+        ports:
+            - 3306:3306
+        volumes:
+            - mysql-java-training:/var/lib/mysql
+        environment: 
+            MYSQL_ROOT_PASSWORD: root123
+            MYSQL_DATABASE: java-training
+volumes:
+    mysql-java-training: {}

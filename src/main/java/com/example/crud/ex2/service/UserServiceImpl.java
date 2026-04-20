@@ -1,8 +1,10 @@
 package com.example.crud.ex2.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -19,26 +21,27 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
 
     public UserServiceImpl(
-            UserRepository userRepository,
-            ModelMapper modelMapper) {
+        UserRepository userRepository,
+        ModelMapper modelMapper
+    ) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
 
     @Override
     public List<UserDto> getAll() {
-        List<User> users = userRepository.findAll();
+        Iterable<User> users = userRepository.findAll();
 
-        return users
-            .stream()
-            .map(user -> modelMapper.map(user, UserDto.class))
-            .collect(Collectors.toList());
-
+        return StreamSupport.stream(users.spliterator(), false)
+                .map(user -> modelMapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public UserDto create(UserDto userDto) {
         userDto.setId(null);
+        userDto.setCreatedAt(LocalDateTime.now());
+        userDto.setUpdatedAt(LocalDateTime.now());
 
         User user = modelMapper.map(userDto, User.class);
 
@@ -59,6 +62,8 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("Cannot find user with ID: " + String.valueOf(id));
         }
 
+        userDto.setUpdatedAt(user.get().getCreatedAt());
+        userDto.setUpdatedAt(LocalDateTime.now());
         User updatedUser = userRepository.save(modelMapper.map(userDto, User.class));
 
         return modelMapper.map(updatedUser, UserDto.class);
@@ -76,11 +81,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto deleteById(int id) {
-        Optional<User> deletedUser = userRepository.deleteById(id);
-        if (deletedUser.isEmpty()) {
+        Optional<User> toDeteleUser = userRepository.findById(id);
+        if (toDeteleUser.isEmpty()) {
             throw new UserNotFoundException("Cannot find user with ID: " + String.valueOf(id));
         }
 
-        return modelMapper.map(deletedUser.get(), UserDto.class);
+        userRepository.delete(toDeteleUser.get());
+
+        return modelMapper.map(toDeteleUser.get(), UserDto.class);
     }
 }
