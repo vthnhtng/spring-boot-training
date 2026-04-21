@@ -10,30 +10,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "users")
+@Table(name = "chat_rooms")
 @Setter
 @Getter
-public class User {
+public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(nullable = false)
+    private String name;
 
-    @NotBlank
-    @Email
-    @Column(unique = true, nullable = false)
-    private String email;
-
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "chatRoom")
     private List<Membership> memberships;
 
     @Column(name = "created_at")
